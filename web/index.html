@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenSCAD Web API Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; max-width: 1200px; margin: 0 auto; }
+    h1 { margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; height: 200px; font-family: monospace; font-size: 14px; padding: 0.5rem; }
+    .panel { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; }
+    button { padding: 0.5rem 1rem; cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #0052a3; }
+    button:disabled { background: #999; cursor: not-allowed; }
+    .status { margin-top: 0.5rem; font-size: 0.9em; color: #666; }
+    .error { color: #c00; }
+    pre { overflow: auto; max-height: 150px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>OpenSCAD Web API Demo</h1>
+  <p>Edit the SCAD code and click Render. Requires a built WASM module. Serve from project root so <code>build-web/</code> is accessible.</p>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Source</h2>
+      <textarea id="source">cube(10);
+translate([15, 0, 0]) sphere(r=8);
+cylinder(h=20, r=5);</textarea>
+      <div style="margin-top: 0.5rem;">
+        <button id="btnRender">Render (main thread)</button>
+        <button id="btnWorker">Render (worker)</button>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+    <div class="panel">
+      <h2>Output</h2>
+      <pre id="output">Click Render to generate STL...</pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createOpenSCAD, createOpenSCADWorker } from './openscad-api.js';
+
+    const sourceEl = document.getElementById('source');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+    const btnRender = document.getElementById('btnRender');
+    const btnWorker = document.getElementById('btnWorker');
+
+    const base = new URL('../build-web/', import.meta.url);
+    const options = {
+      wasmUrl: new URL('openscad.js', base).href,
+      locateFile: (path) => path.endsWith('.wasm') ? new URL('openscad.wasm', base).href : path,
+    };
+
+    function setStatus(msg, isError = false) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (isError ? ' error' : '');
+    }
+
+    btnRender.addEventListener('click', async () => {
+      btnRender.disabled = true;
+      setStatus('Loading WASM...');
+      try {
+        const openscad = await createOpenSCAD(options);
+        setStatus('Rendering...');
+        const buffer = await openscad.renderToStl(sourceEl.value);
+        outputEl.textContent = `STL generated: ${buffer.byteLength} bytes\n\nFirst 200 bytes (hex):\n${Array.from(new Uint8Array(buffer.slice(0, 200)))
+          .map(b => b.toString(16).padStart(2, '0')).join(' ')}`;
+        setStatus('Done');
+      } catch (err) {
+        setStatus(err.message, true);
+        outputEl.textContent = 'Error: ' + err.message;
+      } finally {
+        btnRender.disabled = false;
+      }
+    });
+
+    let worker = null;
+    btnWorker.addEventListener('click', async () => {
+      btnWorker.disabled = true;
+      setStatus('Initializing worker...');
+      try {
+        if (!worker) {
+          worker = createOpenSCADWorker({
+            ...options,
+            workerUrl: new URL('openscad-worker.js', import.meta.url).href,
+          });
+          await worker.init();
+        }
+        setStatus('Rendering in worker...');
+        const buffer = await worker.renderToStl(sourceEl.value);
+        outputEl.textContent = `STL generated (worker): ${buffer.byteLength} bytes`;
+        setStatus('Done');
+      } catch (err) {
+        setStatus(err.message, true);
+        outputEl.textContent = 'Error: ' + err.message;
+      } finally {
+        btnWorker.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

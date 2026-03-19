@@ -273,6 +273,8 @@ The following command creates `build-web/openscad.wasm` & `build-web/openscad.js
 
 [openscad/openscad-playground](https://github.com/openscad/openscad-playground) uses this WASM build to provide a [Web UI](https://ochafik.com/openscad2/) with a subset of features of OpenSCAD.
 
+A clean JavaScript/TypeScript Web API is provided in [`web/`](web/) for programmatic use. See [docs/WEB_API.md](docs/WEB_API.md) for documentation.
+
 > [!NOTE]
 > With a debug build (`-DCMAKE_BUILD_TYPE=Debug`), you can set C++ breakpoints in Firefox and in Chrome (the latter [needs an extension](https://developer.chrome.com/docs/devtools/wasm)).
 
