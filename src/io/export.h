@@ -39,6 +39,7 @@ enum class FileFormat {
   NEF3,
   CSG,
   AST,
+  AST_JSON,
   TERM,
   ECHO,
   PNG,

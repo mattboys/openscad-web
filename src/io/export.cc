@@ -92,6 +92,7 @@ Containers& containers()
     add_item(*containers, {FileFormat::CSG, "csg", "csg", "CSG"});
     add_item(*containers, {FileFormat::PARAM, "param", "param", "param"});
     add_item(*containers, {FileFormat::AST, "ast", "ast", "AST"});
+    add_item(*containers, {FileFormat::AST_JSON, "astjson", "astjson", "AST (JSON)"});
     add_item(*containers, {FileFormat::TERM, "term", "term", "term"});
     add_item(*containers, {FileFormat::ECHO, "echo", "echo", "echo"});
     add_item(*containers, {FileFormat::PNG, "png", "png", "PNG"});
@@ -160,8 +161,9 @@ const std::string& toSuffix(FileFormat format)
 
 bool canPreview(FileFormat format)
 {
-  return (format == FileFormat::AST || format == FileFormat::CSG || format == FileFormat::PARAM ||
-          format == FileFormat::ECHO || format == FileFormat::TERM || format == FileFormat::PNG);
+  return (format == FileFormat::AST || format == FileFormat::AST_JSON || format == FileFormat::CSG ||
+          format == FileFormat::PARAM || format == FileFormat::ECHO || format == FileFormat::TERM ||
+          format == FileFormat::PNG);
 }
 
 bool is3D(FileFormat format)

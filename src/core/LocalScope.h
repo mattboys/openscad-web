@@ -13,6 +13,8 @@
 
 class AbstractNode;
 class Context;
+class UserFunction;
+class UserModule;
 
 class LocalScope
 {
@@ -29,6 +31,19 @@ public:
   void addFunction(const std::shared_ptr<class UserFunction>& function);
   void addAssignment(const std::shared_ptr<class Assignment>& assignment);
   bool hasChildren() const { return !(moduleInstantiations.empty()); }
+
+  /** Declaration order of user functions (for AST / JSON export). */
+  [[nodiscard]] const std::vector<std::pair<std::string, std::shared_ptr<UserFunction>>>&
+  astSerializationFunctions() const
+  {
+    return astFunctions;
+  }
+  /** Declaration order of user modules (for AST / JSON export). */
+  [[nodiscard]] const std::vector<std::pair<std::string, std::shared_ptr<UserModule>>>&
+  astSerializationModules() const
+  {
+    return astModules;
+  }
 
   /**
    * @brief Search corresponding environment of name for type
