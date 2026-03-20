@@ -7,7 +7,9 @@ JavaScript/TypeScript API for the OpenSCAD WASM build. See [../docs/WEB_API.md](
 | File | Description |
 |------|-------------|
 | `openscad-api.js` | Main API: `createOpenSCAD`, `createOpenSCADWorker` |
+| `ast-ir.js` | Phase 2: `astToJson`, `jsonToScad`, `applyAstDiff` |
 | `openscad-api.d.ts` | TypeScript definitions |
+| `ast-ir.d.ts` | TypeScript definitions for AST IR helpers |
 | `openscad-worker.js` | Web Worker implementation |
 | `index.html` | Demo page |
 

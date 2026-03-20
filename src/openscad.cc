@@ -106,6 +106,7 @@
 #include "glview/RenderSettings.h"
 #include "handle_dep.h"
 #include "io/export.h"
+#include "io/export_ast_json.h"
 #include "openscad_gui.h"
 #include "openscad_mimalloc.h"
 #include "platform/PlatformUtils.h"
@@ -455,6 +456,12 @@ int do_export(const CommandLine& cmd, const RenderVariables& render_variables, F
     fs::current_path(fparent);  // Force exported filenames to be relative to document path
     with_output(cmd.is_stdout, filename_str,
                 [root_file](std::ostream& stream) { stream << root_file->dump(""); });
+    fs::current_path(cmd.original_path);
+  } else if (export_format == FileFormat::AST_JSON) {
+    fs::current_path(fparent);
+    with_output(cmd.is_stdout, filename_str, [root_file](std::ostream& stream) {
+      stream << export_source_file_ast_json(*root_file);
+    });
     fs::current_path(cmd.original_path);
   } else if (export_format == FileFormat::PARAM) {
     with_output(cmd.is_stdout, filename_str,

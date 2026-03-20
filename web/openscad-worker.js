@@ -46,6 +46,15 @@ self.onmessage = async (e) => {
         break;
       }
 
+      case 'astToJson': {
+        if (!openscadInstance) {
+          throw new Error('Worker not initialized. Send { type: "init", options } first.');
+        }
+        const ast = await openscadInstance.astToJson(source || '');
+        reply(ast);
+        break;
+      }
+
       default:
         reply(null, `Unknown message type: ${type}`);
     }

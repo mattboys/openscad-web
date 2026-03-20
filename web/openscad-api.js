@@ -24,6 +24,7 @@ export const EXPORT_FORMATS = {
   dxf: 'dxf',
   csg: 'csg',
   ast: 'ast',
+  astjson: 'astjson',
 };
 
 /**
@@ -223,6 +224,34 @@ class OpenSCADInstance {
     return { valid: true };
   }
 
+  /**
+   * Parse source and return the Phase-2 AST as JSON (IR for visual tools / codegen).
+   * Requires a WASM build that supports --export-format=astjson.
+   * @param {string} source - OpenSCAD source
+   * @returns {Promise<object>}
+   */
+  async astToJson(source) {
+    const inputPath = DEFAULT_INPUT_FILE;
+    const outputPath = '/ast-output.astjson';
+
+    this._fs.writeFile(inputPath, source);
+
+    const exitCode = this._instance.callMain([
+      inputPath,
+      '--backend=manifold',
+      '-o', outputPath,
+      '--export-format=astjson',
+    ]);
+
+    if (exitCode !== 0) {
+      const stderr = this._captureStderr();
+      throw new Error(`OpenSCAD astToJson failed (exit ${exitCode}): ${stderr}`);
+    }
+
+    const text = this._fs.readFile(outputPath, { encoding: 'utf8' });
+    return JSON.parse(text);
+  }
+
   _captureStderr() {
     try {
       return (this._instance.PATH?.stderr || []).join('') || 'Unknown error';
@@ -315,6 +344,13 @@ class OpenSCADWorker {
    */
   async parse(source) {
     return this._post({ type: 'parse', source });
+  }
+
+  /**
+   * Parse and return AST JSON (runs in worker)
+   */
+  async astToJson(source) {
+    return this._post({ type: 'astToJson', source });
   }
 
   terminate() {
