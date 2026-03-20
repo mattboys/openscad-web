@@ -54,6 +54,8 @@ export interface OpenSCADInstance {
   renderToObj(source: string, options?: RenderOptions): Promise<ArrayBuffer>;
   /** Check if source parses without full render */
   parse(source: string): Promise<ParseResult>;
+  /** Parse and return Phase-2 AST as JSON (`--export-format=astjson`) */
+  astToJson(source: string): Promise<Record<string, unknown>>;
   /** Raw Emscripten instance (for advanced usage) */
   readonly raw: unknown;
 }
@@ -67,6 +69,8 @@ export interface OpenSCADWorker {
   renderToStl(source: string, options?: RenderOptions): Promise<ArrayBuffer>;
   /** Parse only (validate) */
   parse(source: string): Promise<ParseResult>;
+  /** Parse and return AST JSON */
+  astToJson(source: string): Promise<Record<string, unknown>>;
   /** Terminate the worker */
   terminate(): void;
 }

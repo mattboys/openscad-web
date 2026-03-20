@@ -177,6 +177,11 @@ The rebuild must support the complete OpenSCAD language as documented at https:/
 
 **Deliverables**: `astToJson()`, `jsonToScad()`, `applyAstDiff()`.
 
+**Implementation (this repo)**:
+
+- C++: `--export-format=astjson` → `export_source_file_ast_json()` (`src/io/export_ast_json.{h,cc}`).
+- JS: `OpenSCADInstance.astToJson()` / worker message `astToJson`; `web/ast-ir.js` (`astToJson`, `jsonToScad`, `applyAstDiff`).
+
 ---
 
 ### Phase 3: Node Graph Data Model

@@ -86,6 +86,16 @@ Convenience method for OBJ export.
 
 Validate syntax without full geometry evaluation. Returns `{ valid: boolean, error?: string }`.
 
+#### `astToJson(source)` → `Promise<object>`
+
+**Phase 2** — Parse and return a serializable AST (nodes, argument expressions as canonical text, source locations). Uses `--export-format=astjson` on the WASM binary. The object shape is documented in [WEB_REBUILD_PLAN.md](./WEB_REBUILD_PLAN.md) (Phase 2).
+
+Companion module `web/ast-ir.js` exports:
+
+- `astToJson(openscad, source)` — thin wrapper around the instance method
+- `jsonToScad(ir)` — IR → OpenSCAD source (consistent formatting; expressions use parser `text`)
+- `applyAstDiff(oldAst, newIr, source)` — minimal substring edits when trees align; otherwise full `jsonToScad(newIr)`
+
 ### `createOpenSCADWorker(options?)`
 
 Creates a worker-based API. Call `init()` before `render()`.
@@ -101,6 +111,7 @@ Creates a worker-based API. Call `init()` before `render()`.
 - `render(source, options?)` → `Promise<RenderResult>`
 - `renderToStl(source, options?)` → `Promise<ArrayBuffer>`
 - `parse(source)` → `Promise<ParseResult>`
+- `astToJson(source)` → `Promise<object>` — AST JSON (Phase 2)
 - `terminate()` — Terminate the worker
 
 ## Customizer Parameters
